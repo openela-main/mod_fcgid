@@ -1,0 +1,16 @@
+# ./pullrev.sh 1847623
+http://svn.apache.org/viewvc?view=revision&revision=1847623
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1651310
+
+--- mod_fcgid-2.3.9/modules/fcgid/fcgid_conf.h
++++ mod_fcgid-2.3.9/modules/fcgid/fcgid_conf.h
+@@ -138,7 +138,7 @@
+  * to limit shared memory use
+  */
+ #define INITENV_KEY_LEN 64
+-#define INITENV_VAL_LEN 128
++#define INITENV_VAL_LEN 256
+ #define INITENV_CNT 64
+ typedef struct {
+     char initenv_key[INITENV_CNT][INITENV_KEY_LEN];
