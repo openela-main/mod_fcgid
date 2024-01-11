@@ -1,0 +1,40 @@
+# ./pullrev.sh 1848311
+http://svn.apache.org/viewvc?view=revision&revision=1848311
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1655035
+
+--- mod_fcgid-2.3.9/modules/fcgid/config.m4
++++ mod_fcgid-2.3.9/modules/fcgid/config.m4
+@@ -43,6 +43,11 @@
+     AC_CHECK_HEADERS(sys/mman.h)
+     AC_CHECK_HEADERS(sys/mutex.h)
+     AC_CHECK_HEADERS(sys/shm.h)
++    if test "x$enable_fcgid" = "xshared"; then
++       # The only symbol which needs to be exported is the module
++       # structure, so ask libtool to hide everything else:
++       APR_ADDTO(MOD_FCGID_LDADD, [-export-symbols-regex fcgid_module])
++    fi
+ ])
+ 
+ dnl #  end of module specific part
+--- mod_fcgid-2.3.9/modules/fcgid/Makefile.apxs
++++ mod_fcgid-2.3.9/modules/fcgid/Makefile.apxs
+@@ -16,6 +16,7 @@
+ builddir=.
+ srcdir=.
+ 
++MOD_FCGID_LDADD = -export-symbols-regex fcgid_module
+ CLEAN_TARGETS = *.loT
+ include $(exp_installbuilddir)/special.mk
+ 
+--- mod_fcgid-2.3.9/modules/fcgid/modules.mk.apxs
++++ mod_fcgid-2.3.9/modules/fcgid/modules.mk.apxs
+@@ -17,7 +17,7 @@
+ # this is used/needed by the APACHE2 build system
+ #
+ mod_fcgid.la: mod_fcgid.slo fcgid_bridge.slo fcgid_conf.slo fcgid_pm_main.slo fcgid_protocol.slo fcgid_spawn_ctl.slo  fcgid_proctbl_unix.slo fcgid_pm_unix.slo fcgid_proc_unix.slo fcgid_bucket.slo fcgid_filter.slo fcgid_mutex_unix.slo
+-	$(SH_LINK) -rpath $(libexecdir) -module -avoid-version mod_fcgid.lo fcgid_bridge.lo fcgid_conf.lo fcgid_pm_main.lo fcgid_protocol.lo fcgid_spawn_ctl.lo  fcgid_proctbl_unix.lo fcgid_pm_unix.lo fcgid_proc_unix.lo fcgid_bucket.lo fcgid_filter.lo fcgid_mutex_unix.lo
++	$(SH_LINK) -rpath $(libexecdir) -module -avoid-version mod_fcgid.lo fcgid_bridge.lo fcgid_conf.lo fcgid_pm_main.lo fcgid_protocol.lo fcgid_spawn_ctl.lo  fcgid_proctbl_unix.lo fcgid_pm_unix.lo fcgid_proc_unix.lo fcgid_bucket.lo fcgid_filter.lo fcgid_mutex_unix.lo $(MOD_FCGID_LDADD)
+ DISTCLEAN_TARGETS = modules.mk
+ static =
+ shared =  mod_fcgid.la
